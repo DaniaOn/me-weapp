@@ -8,13 +8,8 @@ An application that utilizes the third-party API, OpenWeather, to retrieve weath
 
 Enter the city of preference and the page will give you the temperature, humidity and wind speed.
 
-## Screenshot
-
-![weather dashboard screenshot]();
-
-
 # Link to Deployed Application
-
+https://daniaon.github.io/me-weapp/
 
 ## License
 

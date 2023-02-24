@@ -1,10 +1,37 @@
 var apiKey = "ddf34d495a550c674e9f61eb82d9fc3e";
 var favCity = [];
 
+//local storage(list of cities)
+var searchHistoryList = function (cityName){
+    $('.previous-search:contains("'+ cityName +'")').remove();
+
+    var searchHistoryEntry = $("<p>");
+    searchHistoryEntry.addClass("previous-search");
+    searchHistoryEntry.text(cityName);
+    searchHistoryEntry.append(searchHistoryEntry);
+
+    var searchHistoryContainerEl = $("#search-history-container");
+    searchHistoryContainerEl.append(searchEntryContainer);
+
+    if (savedCities.length > 0){ var previoussavedCities = localStorage.getItem("savedCities"); savedSearches = JSON.parse(previoussavedCities);
+    }
+
+    // add city name to array of saved searches
+    savedSearches.push(cityName);localStorage.setItem("savedCities", JSON.stringify(savedSearches));
+
+    // reset search input
+    $("#search-input").val("");
+
+};
+
 //current weather funtion
 var currentWeather = function (cityName){
     fetch(`https://api.openweathermap.org/data/2.5/weather?q=${cityName}&appid=${apiKey}`)
         .then(function(response) { return response.json();})
+        .then(function(response) {
+            // get city's longitude and latitude
+            var cityLon = response.coord.lon;
+            var cityLat = response.coord.lat;
             fetch(`https://api.openweathermap.org/data/2.5/onecall?lat=${cityLat}&lon=${cityLon}&exclude=minutely,hourly,alerts&units=imperial&appid=${apiKey}`)
                 .then(function(response) { return response.json();
                 })  
@@ -30,11 +57,9 @@ var currentWeather = function (cityName){
 
                     var currentTemp =$("#current-humidity");
                     currentTemp.text ("Humidity:"+ response.current.humidity+ " %");
-                })
+                })        
         });
-};
-
-
+ };
 //future weather funtion 
 var fiveDaysWea =function (cityNamev){
     fetch(`https://api.openweathermap.org/data/2.5/weather?q=${cityName}&appid=${apiKey}`)
@@ -58,11 +83,17 @@ var fiveDaysWea =function (cityNamev){
                         var futureTemp = $("#future-temp" + i);
                         futureTemp.text("Temp: " + response.daily[i].temp.day + " \u00B0F");
                     } 
-                })
-        });
-
+                });
 };
 
+//search for the history on previous cities
+var loadSearchHistory = function() {
+    var savedHistory = localStorage.getItem ("savedCities");
+    if (!savedHistory) {
+        return false;
+    } 
+    savedHistory = JSON.parse(savedHistory);
+};
 
 //localhost search history
 $("#search-history-container").on("click", "p", function() {   

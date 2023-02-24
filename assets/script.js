@@ -1,5 +1,5 @@
 var apiKey = "ddf34d495a550c674e9f61eb82d9fc3e";
-var favCity = [];
+var savedCities = [];
 
 //local storage(list of cities)
 var searchHistoryList = function (cityName){
@@ -11,13 +11,13 @@ var searchHistoryList = function (cityName){
     searchHistoryEntry.append(searchHistoryEntry);
 
     var searchHistoryContainerEl = $("#search-history-container");
-    searchHistoryContainerEl.append(searchEntryContainer);
+    searchHistoryContainerEl.append(searchHistoryContainerEl);
 
-    if (savedCities.length > 0){ var previoussavedCities = localStorage.getItem("savedCities"); savedSearches = JSON.parse(previoussavedCities);
+    if (savedCities.length > 0){ var previoussavedCities = localStorage.getItem("savedCities"); savedCities = JSON.parse(previoussavedCities);
     }
 
     // add city name to array of saved searches
-    savedSearches.push(cityName);localStorage.setItem("savedCities", JSON.stringify(savedSearches));
+    savedCities.push(cityName);localStorage.setItem("savedCities", JSON.stringify(savedCities));
 
     // reset search input
     $("#search-input").val("");
@@ -61,10 +61,14 @@ var currentWeather = function (cityName){
         });
  };
 //future weather funtion 
-var fiveDaysWea =function (cityNamev){
+var fiveDaywea =function (cityName){
     fetch(`https://api.openweathermap.org/data/2.5/weather?q=${cityName}&appid=${apiKey}`)
-        .then(function(response) { return response.json();
-        })
+        .then(function(response) { 
+            return response.json();
+            })
+            .then(function(response) {
+            var cityLon = response.coord.lon;
+            var cityLat = response.coord.lat;
             fetch(`https://api.openweathermap.org/data/2.5/onecall?lat=${cityLat}&lon=${cityLon}&exclude=minutely,hourly,alerts&units=imperial&appid=${apiKey}`)
                 .then(function(response) { return response.json();
                 })  
@@ -82,8 +86,13 @@ var fiveDaysWea =function (cityNamev){
 
                         var futureTemp = $("#future-temp" + i);
                         futureTemp.text("Temp: " + response.daily[i].temp.day + " \u00B0F");
-                    } 
-                });
+
+                        var futureHumidity = $("#future-humidity-" + i);
+                        futureHumidity.text("Humidity: " + response.daily[i].humidity + "%");
+                    }
+                    
+                })
+        })
 };
 
 //search for the history on previous cities
@@ -98,8 +107,8 @@ var loadSearchHistory = function() {
 //localhost search history
 $("#search-history-container").on("click", "p", function() {   
     var previousCityName = $(this).text();
-    currentWeatherSection(previousCityName);
-    fiveDayForecastSection(previousCityName);
+    currentWeather(previousCityName);
+    fiveDaywea(previousCityName);
 
     var previousCityClicked = $(this);
     previousCityClicked.remove();
@@ -119,6 +128,6 @@ $("#search-form").on("submit", function() {
     } else {
        
         currentWeather(cityName);
-        fiveDaysWea(cityName);
+        fiveDaywea(cityName);
     }
 });
